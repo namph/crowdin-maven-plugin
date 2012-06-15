@@ -16,6 +16,7 @@
   
   <properties>
     <exo.crowdin.properties>crowdin.properties</exo.crowdin.properties>
+    <exo.crowdin.ignore>ignore.properties</exo.crowdin.ignore>
     <!-- exo.crowdin.project.id and exo.crowdin.project.key are set in settings.xml -->
   </properties>
   
