@@ -34,7 +34,7 @@
                 <phase>initialize</phase>
                 <configuration>
                   <executable>${basedir}/scripts/init-prepare.sh</executable>
-                  <workingDirectory>${exo.projects.directory.base}/eXoProjects/</workingDirectory>
+                  <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
                   <goal>exec</goal>
@@ -45,7 +45,7 @@
                 <phase>package</phase>
                 <configuration>
                   <executable>${basedir}/scripts/post-process.sh</executable>
-                  <workingDirectory>${exo.projects.directory.base}/eXoProjects/</workingDirectory>
+                  <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
                   <goal>exec</goal>
@@ -65,7 +65,7 @@
                    <goal>init</goal>
                  </goals>
                  <configuration>
-                   <startDir>${exo.projects.directory.base}/eXoProjects/</startDir>
+                   <startDir>${basedir}/eXoProjects/</startDir>
                  </configuration>
                </execution>
              </executions>
@@ -87,7 +87,7 @@
                 <phase>initialize</phase>
                 <configuration>
                   <executable>${basedir}/scripts/init-prepare.sh</executable>
-                  <workingDirectory>${exo.projects.directory.base}/eXoProjects/</workingDirectory>
+                  <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
                   <goal>exec</goal>
@@ -98,7 +98,7 @@
                 <phase>package</phase>
                 <configuration>
                   <executable>${basedir}/scripts/post-process.sh</executable>
-                  <workingDirectory>${exo.projects.directory.base}/eXoProjects/</workingDirectory>
+                  <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
                   <goal>exec</goal>
@@ -118,7 +118,7 @@
                    <goal>sync</goal>
                  </goals>
                  <configuration>
-                   <startDir>${exo.projects.directory.base}/eXoProjects/</startDir>
+                   <startDir>${basedir}/eXoProjects/</startDir>
                  </configuration>
                </execution>
              </executions>
@@ -143,7 +143,7 @@
                    <goal>update</goal>
                  </goals>
                  <configuration>
-                   <startDir>${exo.projects.directory.base}/eXoProjects/</startDir>
+                   <startDir>${basedir}/eXoProjects/</startDir>
                  </configuration>
                </execution>
              </executions>
@@ -157,7 +157,7 @@
                 <phase>package</phase>
                 <configuration>
                   <executable>${basedir}/scripts/update.sh</executable>
-                  <workingDirectory>${exo.projects.directory.base}/eXoProjects/</workingDirectory>
+                  <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
                   <goal>exec</goal>
@@ -168,7 +168,7 @@
                 <phase>package</phase>
                 <configuration>
                   <executable>${basedir}/scripts/post-process.sh</executable>
-                  <workingDirectory>${exo.projects.directory.base}/eXoProjects/</workingDirectory>
+                  <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
                   <goal>exec</goal>
@@ -193,7 +193,7 @@
                 <phase>initialize</phase>
                 <configuration>
                   <executable>${basedir}/scripts/init-prepare.sh</executable>
-                  <workingDirectory>${exo.projects.directory.base}/eXoProjects/</workingDirectory>
+                  <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
                   <goal>exec</goal>
@@ -204,7 +204,7 @@
                 <phase>package</phase>
                 <configuration>
                   <executable>${basedir}/scripts/post-process.sh</executable>
-                  <workingDirectory>${exo.projects.directory.base}/eXoProjects/</workingDirectory>
+                  <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
                   <goal>exec</goal>
@@ -224,7 +224,7 @@
                    <goal>upload-translation</goal>
                  </goals>
                  <configuration>
-                   <startDir>${exo.projects.directory.base}/eXoProjects/</startDir>
+                   <startDir>${basedir}/eXoProjects/</startDir>
                  </configuration>
                </execution>
              </executions>
