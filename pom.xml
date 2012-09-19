@@ -232,6 +232,31 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>restore-translation</id>
+      <build>
+        <plugins>
+          <plugin>
+             <groupId>org.exoplatform.crowdin</groupId>
+             <artifactId>crowdin-maven-plugin</artifactId>
+             <version>1.0.0-SNAPSHOT</version>
+             <executions>
+               <execution>
+                 <id>restore-translation</id>
+                 <phase>compile</phase>
+                 <goals>
+                   <goal>restore-translation</goal>
+                 </goals>
+                 <configuration>
+                   <startDir>${basedir}/eXoProjects/</startDir>
+                 </configuration>
+               </execution>
+             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>    
     
   </profiles>
 </project>
