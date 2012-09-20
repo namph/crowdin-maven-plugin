@@ -87,7 +87,14 @@ recurse() {
 
 recurse $EXO_PROJECTS/temp/crowdin
 
-$EXO_PROJECTS
+echo ""
+echo "=========================Restoring escaped characters (:#!=)========================="
+echo ""
+find -depth -name "*.xml" -or -name "*.properties" | while read FILENAME; do
+    echo "Processing $FILENAME..."
+    sed -i -e 's|\\\([:#!=]\)|\1|g' $FILENAME
+done
+
 echo ""
 echo "=======================Committing translations to temporary branches================"
 for (( i=0;i<$length;i++)); do
