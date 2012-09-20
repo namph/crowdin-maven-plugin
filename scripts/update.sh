@@ -88,11 +88,14 @@ recurse() {
 recurse $EXO_PROJECTS/temp/crowdin
 
 echo ""
-echo "=========================Restoring escaped characters (:#!=)========================="
+echo "=========================Post-processing resource bundle files========================="
 echo ""
 find -depth -name "*.xml" -or -name "*.properties" | while read FILENAME; do
     echo "Processing $FILENAME..."
+    # Restoring escaped characters (:#!=)
     sed -i -e 's|\\\([:#!=]\)|\1|g' $FILENAME
+    # Convert native characters to unicode format
+    native2ascii -encoding UTF8 $FILENAME $FILENAME
 done
 
 echo ""
