@@ -46,17 +46,18 @@ for (( i=0;i<$length;i++)); do
     echo "--------------Cloning project from url: git@github.com:exodev/${projects[${i}]}.git---"
     git clone git@github.com:exodev/${projects[${i}]}.git
     echo "-------------------------Cloning done----------------------------------------"
-  fi
   
-  cd ${projects[${i}]}
-  echo "-------------------------Fetching Blessed Repository--------------------------"
-  git remote add blessed git@github.com:exoplatform/${projects[${i}]}.git
-  git fetch blessed
-  echo "-------------------------Fetching done----------------------------------------"
-  git branch -D crowdin/${oldtags[${i}]}
-  git checkout -b crowdin/${oldtags[${i}]} ${oldtags[${i}]}
-  echo "-------------------------Switched to crowdin/${oldtags[${i}]}-------------"
-  cd ..
+    cd ${projects[${i}]}
+    echo "-------------------------Fetching Blessed Repository--------------------------"
+    git remote add blessed git@github.com:exoplatform/${projects[${i}]}.git
+    git fetch blessed
+    echo "-------------------------Fetching done----------------------------------------"
+    git branch -D crowdin/${oldtags[${i}]}
+    git checkout -b crowdin/${oldtags[${i}]} ${oldtags[${i}]}
+    echo "-------------------------Switched to crowdin/${oldtags[${i}]}-------------"
+    cd ..
+  fi
+
   mv ${projects[${i}]} ${projects[${i}]}-${versions[${i}]}
   echo "-------------------------Renamed ${projects[${i}]} to ${projects[${i}]}-${versions[${i}]}-------------------"
 
@@ -91,9 +92,9 @@ echo "=========================Post-processing resource bundle files============
 echo ""
 find -depth -name "*.xml" -or -name "*.properties" | while read FILENAME; do
     echo "Processing $FILENAME..."
-    # Restoring escaped characters (:#!=)
+   # Restoring escaped characters (:#!=)
     sed -i -e 's|\\\([:#!=]\)|\1|g' $FILENAME
-    # Convert native characters to unicode format
+   # Convert native characters to unicode format
     native2ascii -encoding UTF8 $FILENAME $FILENAME
 done
 

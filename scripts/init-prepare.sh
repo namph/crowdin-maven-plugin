@@ -46,21 +46,22 @@ for (( i=0;i<$length;i++)); do
     echo "--------------Cloning project from url: git@github.com:exodev/${projects[${i}]}.git---"
     git clone git@github.com:exodev/${projects[${i}]}.git
     echo "-------------------------Cloning done----------------------------------------"
-  fi
   
-  cd ${projects[${i}]}
-  echo "-------------------------Fetching Blessed Repository--------------------------"
-  git remote add blessed git@github.com:exoplatform/${projects[${i}]}.git
-  git fetch blessed
-  echo "-------------------------Fetching done----------------------------------------"
-  if [ "${projects[${i}]}" != "webos" ]; then
-    git checkout remotes/blessed/stable/${versions[${i}]}
-    echo "-------------------------Switched to remotes/blessed/stable/${versions[${i}]}-------------"
-  else
-    git checkout remotes/blessed/master
-    echo "-------------------------Switched to remotes/blessed/master-------------"
+    cd ${projects[${i}]}
+    echo "-------------------------Fetching Blessed Repository--------------------------"
+    git remote add blessed git@github.com:exoplatform/${projects[${i}]}.git
+    git fetch blessed
+    echo "-------------------------Fetching done----------------------------------------"
+    if [ "${projects[${i}]}" != "webos" ]; then
+      git checkout remotes/blessed/stable/${versions[${i}]}
+      echo "-------------------------Switched to remotes/blessed/stable/${versions[${i}]}-------------"
+    else
+      git checkout remotes/blessed/master
+      echo "-------------------------Switched to remotes/blessed/master-------------"
+    fi
+    cd ..
   fi
-  cd ..
+
   mv ${projects[${i}]} ${projects[${i}]}-${versions[${i}]}
   echo "-------------------------Renamed ${projects[${i}]} to ${projects[${i}]}-${versions[${i}]}-------------------"
 
