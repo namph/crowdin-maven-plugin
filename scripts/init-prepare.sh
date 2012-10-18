@@ -53,10 +53,10 @@ for (( i=0;i<$length;i++)); do
     git fetch blessed
     echo "-------------------------Fetching done----------------------------------------"
     if [ "${projects[${i}]}" != "webos" ]; then
-      git checkout remotes/blessed/stable/${versions[${i}]}
+      git checkout remotes/blessed/stable/${versions[${i}]} -b crowdin-stable-${versions[${i}]}
       echo "-------------------------Switched to remotes/blessed/stable/${versions[${i}]}-------------"
     else
-      git checkout remotes/blessed/master
+      git checkout remotes/blessed/master -b crowdin-stable-${versions[${i}]}
       echo "-------------------------Switched to remotes/blessed/master-------------"
     fi
     cd ..
