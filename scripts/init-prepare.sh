@@ -44,20 +44,16 @@ for (( i=0;i<$length;i++)); do
   
   if [ ! -d $EXO_PROJECTS/${projects[${i}]} ]; then
     echo "--------------Cloning project from url: git@github.com:exodev/${projects[${i}]}.git---"
-    git clone git@github.com:exodev/${projects[${i}]}.git
+    git clone git@github.com:exoplatform/${projects[${i}]}.git
     echo "-------------------------Cloning done----------------------------------------"
   
     cd ${projects[${i}]}
-    echo "-------------------------Fetching Blessed Repository--------------------------"
-    git remote add blessed git@github.com:exoplatform/${projects[${i}]}.git
-    git fetch blessed
-    echo "-------------------------Fetching done----------------------------------------"
     if [ "${projects[${i}]}" != "webos" ]; then
-      git checkout remotes/blessed/stable/${versions[${i}]} -b crowdin-stable-${versions[${i}]}
-      echo "-------------------------Switched to remotes/blessed/stable/${versions[${i}]}-------------"
+      git checkout origin/stable/${versions[${i}]} -b crowdin-stable-${versions[${i}]}
+      echo "-------------------------Switched to origin/stable/${versions[${i}]}-------------"
     else
-      git checkout remotes/blessed/master -b crowdin-stable-${versions[${i}]}
-      echo "-------------------------Switched to remotes/blessed/master-------------"
+      git checkout origin/master -b crowdin-stable-${versions[${i}]}
+      echo "-------------------------Switched to origin/master-------------"
     fi
     cd ..
   fi

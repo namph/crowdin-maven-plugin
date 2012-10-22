@@ -136,7 +136,7 @@
             <artifactId>exec-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>update</id>
+                <id>init</id>
                 <phase>initialize</phase>
                 <configuration>
                   <executable>${basedir}/scripts/init-prepare.sh</executable>
@@ -146,6 +146,17 @@
                   <goal>exec</goal>
                 </goals>
               </execution>
+              <execution>
+                <id>update</id>
+                <phase>package</phase>
+                <configuration>
+                  <executable>${basedir}/scripts/update.sh</executable>
+                  <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
+                </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+              </execution>              
               <execution>
                 <id>post-process</id>
                 <phase>package</phase>
