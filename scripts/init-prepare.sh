@@ -43,7 +43,7 @@ for (( i=0;i<$length;i++)); do
   echo "+++++++++++++++++++++++++Preparing the ${projects[${i}]} project+++++++++++++++++++++++"
   
   if [ ! -d $EXO_PROJECTS/${projects[${i}]} ]; then
-    echo "--------------Cloning project from url: git@github.com:exodev/${projects[${i}]}.git---"
+    echo "--------------Cloning project from url: git@github.com:exoplatform/${projects[${i}]}.git---"
     git clone git@github.com:exoplatform/${projects[${i}]}.git
     echo "-------------------------Cloning done----------------------------------------"
   
