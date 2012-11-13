@@ -13,4 +13,9 @@ sed -i -e 's|\\\([:#!=/,"]\)|\1|g' $FILENAME
 # Remove blank lines
 #sed -i -e '/^$/d' $FILENAME
 
+# Remove \t after at the end of text
+sed -i -e 's/\(.*\w\|\s\)\(\t\|\\t\)/\1/g' $FILENAME
+
+#Remove blank before and after =
+sed -i -e 's/ *= */=/g' $FILENAME
 #echo "Done!"
