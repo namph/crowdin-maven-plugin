@@ -27,6 +27,7 @@ EXO_PROJECTS=`pwd`
 
 length=${#projects[@]}
 
+
 echo "=========================Preparing projects structure========================="
 echo ""
 
@@ -48,13 +49,15 @@ for (( i=0;i<$length;i++)); do
     echo "-------------------------Cloning done----------------------------------------"
   
     cd ${projects[${i}]}
-    if [ "${projects[${i}]}" != "webos" ]; then
       git checkout origin/stable/${versions[${i}]} -b crowdin-stable-${versions[${i}]}
       echo "-------------------------Switched to origin/stable/${versions[${i}]}-------------"
-    else
-      git checkout origin/master -b crowdin-stable-${versions[${i}]}
-      echo "-------------------------Switched to origin/master-------------"
-    fi
+    cd ..
+  else
+    cd ${projects[${i}]}     
+      git checkout .
+      git clean -f
+      git pull origin stable/${versions[${i}]}
+      echo "----------------------updated the existing local branch----------------"
     cd ..
   fi
 
@@ -66,3 +69,5 @@ done
 
 echo ""
 echo "=========================Projects prepared===================================="
+
+

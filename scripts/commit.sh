@@ -41,17 +41,15 @@ do
     RUN=0
     git diff --no-ext-diff --quiet --exit-code || RUN=1
     if [ $RUN = 1 ]; then
-    git checkout -b $branch_name crowdin-stable-${versions[${i}]} 
     git remote add blessed git@github.com:exodev/${projects[${i}]}.git
     git fetch blessed
     git add --all
     git commit -m "Crowdin-$date : Update translations from crowdin to source code."
-    git push blessed $branch_name
+    git push blessed crowdin-stable-${versions[${i}]}:$branch_name
     echo -e "$branch_name\n" >> ../../report/commit_report.txt
     fi
     if [ $RUN = 0 ]; then
     echo "INFO: No translations have been updated into source code of '${projects[${i}]}-${versions[${i}]}'"
-    #exit 0
     cd ..
 fi
 done
