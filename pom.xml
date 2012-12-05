@@ -15,7 +15,8 @@
   <name>Translations Project</name>
   
   <properties>
-    <exo.crowdin.properties>crowdin.properties</exo.crowdin.properties>
+    <exo.crowdin.properties>src/config/crowdin.properties</exo.crowdin.properties>
+    <exo.crowdin.version>1.0.0-SNAPSHOT</exo.crowdin.version>
     <!-- exo.crowdin.project.id and exo.crowdin.project.key are set in settings.xml -->
     <exo.crowdin.upload-translation.properties>upload-translation/upload-translation.properties</exo.crowdin.upload-translation.properties>
   </properties>
@@ -33,7 +34,7 @@
                 <id>init</id>
                 <phase>initialize</phase>
                 <configuration>
-                  <executable>${basedir}/scripts/init-prepare.sh</executable>
+                  <executable>${basedir}/src/scripts/init-prepare.sh</executable>
                   <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
@@ -44,7 +45,7 @@
                 <id>post-process</id>
                 <phase>package</phase>
                 <configuration>
-                  <executable>${basedir}/scripts/post-process.sh</executable>
+                  <executable>${basedir}/src/scripts/post-process.sh</executable>
                   <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
@@ -86,7 +87,7 @@
                 <id>init</id>
                 <phase>initialize</phase>
                 <configuration>
-                  <executable>${basedir}/scripts/init-prepare.sh</executable>
+                  <executable>${basedir}/src/scripts/init-prepare.sh</executable>
                   <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
@@ -97,7 +98,7 @@
                 <id>post-process</id>
                 <phase>package</phase>
                 <configuration>
-                  <executable>${basedir}/scripts/post-process.sh</executable>
+                  <executable>${basedir}/src/scripts/post-process.sh</executable>
                   <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
@@ -109,7 +110,7 @@
           <plugin>
              <groupId>org.exoplatform.crowdin</groupId>
              <artifactId>crowdin-maven-plugin</artifactId>
-             <version>1.0.0-SNAPSHOT</version>
+             <version>${exo.crowdin.version}</version>
              <executions>
                <execution>
                  <id>sync</id>
@@ -139,7 +140,7 @@
                 <id>init</id>
                 <phase>initialize</phase>
                 <configuration>
-                  <executable>${basedir}/scripts/init-prepare.sh</executable>
+                  <executable>${basedir}/src/scripts/init-prepare.sh</executable>
                   <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
@@ -150,7 +151,7 @@
                 <id>update</id>
                 <phase>package</phase>
                 <configuration>
-                  <executable>${basedir}/scripts/update.sh</executable>
+                  <executable>${basedir}/src/scripts/update.sh</executable>
                   <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
@@ -161,7 +162,7 @@
                 <id>post-process</id>
                 <phase>package</phase>
                 <configuration>
-                  <executable>${basedir}/scripts/post-process.sh</executable>
+                  <executable>${basedir}/src/scripts/post-process.sh</executable>
                   <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
@@ -173,7 +174,7 @@
           <plugin>
              <groupId>org.exoplatform.crowdin</groupId>
              <artifactId>crowdin-maven-plugin</artifactId>
-             <version>1.0.0-SNAPSHOT</version>
+             <version>${exo.crowdin.version}</version>
              <executions>
                <execution>
                  <id>update</id>
@@ -203,7 +204,7 @@
                 <id>init</id>
                 <phase>initialize</phase>
                 <configuration>
-                  <executable>${basedir}/scripts/init-prepare.sh</executable>
+                  <executable>${basedir}/src/scripts/init-prepare.sh</executable>
                   <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
@@ -214,7 +215,7 @@
                 <id>post-process</id>
                 <phase>package</phase>
                 <configuration>
-                  <executable>${basedir}/scripts/post-process.sh</executable>
+                  <executable>${basedir}/src/scripts/post-process.sh</executable>
                   <workingDirectory>${basedir}/eXoProjects/</workingDirectory>
                 </configuration>
                 <goals>
@@ -226,7 +227,7 @@
           <plugin>
              <groupId>org.exoplatform.crowdin</groupId>
              <artifactId>crowdin-maven-plugin</artifactId>
-             <version>1.0.0-SNAPSHOT</version>
+             <version>${exo.crowdin.version}</version>
              <executions>
                <execution>
                  <id>upload-translation</id>
@@ -251,7 +252,7 @@
           <plugin>
              <groupId>org.exoplatform.crowdin</groupId>
              <artifactId>crowdin-maven-plugin</artifactId>
-             <version>1.0.0-SNAPSHOT</version>
+             <version>${exo.crowdin.version}</version>
              <executions>
                <execution>
                  <id>restore-translation</id>

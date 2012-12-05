@@ -20,7 +20,7 @@
 #
 
 # import projects declaration
-source "../projects.sh"
+source "../src/config/projects.sh"
 
 # eXoProjects directory 
 EXO_PROJECTS=`pwd`

@@ -21,8 +21,8 @@
 #
 
 # import projects declaration
-
-source "./projects.sh"
+echo `pwd`
+source "../config/projects.sh"
 rm ./report/commit_report.txt
 touch ./report/commit_report.txt
 cd ./eXoProjects/
