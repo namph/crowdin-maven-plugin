@@ -1,6 +1,9 @@
 FILENAME=$1
 echo "Processing $FILENAME..."
 
+# Restoring replaced special chracters
+sed -i -e 's/__COLON__/:/g' $FILENAME
+
 # Restoring escaped characters (:#!=)
 sed -i -e 's|\\\([:#!=/,"]\)|\1|g' $FILENAME
 
