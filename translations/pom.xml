@@ -60,7 +60,8 @@
                 <language>it</language>
                 <language>pt-BR</language>
                 <language>es-ES</language>
-		<language>ru</language>
+                <language>ru</language>
+                <language>tr</language>
               </languages>
               <!-- Projects to manage -->
               <sourcesRepositories>
