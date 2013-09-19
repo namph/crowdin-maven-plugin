@@ -183,6 +183,31 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
           }
           String key = zipentryName.substring(zipentryName.indexOf(cp) + cp.length() + 1);
           String value = currentProj.getProperty(key);
+          
+          /**
+           * if android, don't save to default master folder but save to
+           * "values-language" folder (for example) res/values/strings.xml >
+           * res/values-fr/strings.xml
+           */
+          if (zipentryName.contains("android")) {
+            if (!locale.contains("en")) {
+              String localizable = CrowdinTranslation.encodeAndroidLocale(locale);
+              value = value.replace("res/values/", "res/values-" + localizable + "/");
+            }
+          }
+          /**
+           * if iOS, don't save to default master folder but save to
+           * "language.proj" folder (for example)
+           * /Resources/en.lproj/Localizable.string >
+           * /Resources/fr.lproj/Localizable.string
+           */
+          else if (zipentryName.contains("ios")) {
+            if (!locale.contains("en")) {
+              String localizable = CrowdinTranslation.encodeIOSLocale(locale);
+              value = value.replace("en.lproj", localizable + ".lproj");
+            }
+          }
+          
           if (value == null) {
             zipentry = zipinputstream.getNextEntry();
             continue;
@@ -210,7 +235,16 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
               fileName = name + "_" + lang + extension;
             }
 
-          } else {
+          }
+          //if android, don't change xml to properties
+          else if (zipentryName.contains("android") ){
+            fileName = name + ".xml";
+          }
+          //if iOS
+          else if(zipentryName.contains("ios") ){
+            fileName = name + extension;
+          }
+          else {
             fileName = name + "_" + lang + extension;
           }
 
@@ -237,10 +271,31 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
             }
             fileoutputstream.close();
 
-            File propertiesFile = new File(entryName);
-            PropsToXML.execShellCommand("native2ascii -encoding UTF8 " + propertiesFile.getPath() + " " + propertiesFile.getPath());
+            File propertiesFile = new File(entryName);     
+            
+            // don't convert to ascii in mobile project
+            if (!zipentryName.contains("mobile")) {
+              PropsToXML.execShellCommand("native2ascii -encoding UTF8 " + propertiesFile.getPath()
+                  + " " + propertiesFile.getPath());
+            }
+
             PropsToXML.parse(propertiesFile.getPath(), resourceBundleType);
             propertiesFile.delete();
+          }
+          else if(zipentryName.contains("ios")){
+            getLog().info("APPLY TRANSLATION7: iOS processing" );
+            int n;
+            FileOutputStream fileoutputstream;
+            fileoutputstream = new FileOutputStream(entryName);
+            while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
+              fileoutputstream.write(buf, 0, n);
+            }
+            fileoutputstream.close();
+
+            File propertiesFile = new File(entryName);
+            PropsToXML.parse(propertiesFile.getPath(), resourceBundleType);
+            propertiesFile.delete();
+            
           } else {
             // identify the master properties file
             String masterFile = parentDir + name + extension;
