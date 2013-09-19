@@ -26,8 +26,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -41,6 +43,7 @@ import org.exoplatform.crowdin.model.CrowdinFile.Type;
 import org.exoplatform.crowdin.model.CrowdinFileFactory;
 import org.exoplatform.crowdin.model.CrowdinTranslation;
 import org.exoplatform.crowdin.model.SourcesRepository;
+import org.exoplatform.crowdin.utils.FileUtils;
 import org.exoplatform.crowdin.utils.PropsToXML;
 
 /**
@@ -143,6 +146,16 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
   }
 
   private void applyTranslations(File _destFolder, String _zipFile, String locale) {
+    
+   // [INFO] _destFolder : /home/annb/java/eXoProjects/crowdin-maven-plugin/translations/target/eXoProjects
+   // [INFO] _zipFile : /home/annb/java/eXoProjects/crowdin-maven-plugin/translations/target/translations.zip
+   // [INFO] locale : en
+   // zipentryname: de/mobile/ios/Localizable.strings 
+    
+    getLog().info("_destFolder : " + _destFolder);
+    getLog().info("_zipFile : " + _zipFile);
+    getLog().info("locale : " + locale);
+    
     try {
       byte[] buf = new byte[1024];
       ZipInputStream zipinputstream = null;
@@ -186,8 +199,7 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
           
           /**
            * if android, don't save to default master folder but save to
-           * "values-language" folder (for example) res/values/strings.xml >
-           * res/values-fr/strings.xml
+           * "values-language" folder (for example) res/values/strings.xml > res/values-fr/strings.xml
            */
           if (zipentryName.contains("android")) {
             if (!locale.contains("en")) {
@@ -282,19 +294,61 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
             PropsToXML.parse(propertiesFile.getPath(), resourceBundleType);
             propertiesFile.delete();
           }
+          
+          // when project is iOS
           else if(zipentryName.contains("ios")){
-            getLog().info("APPLY TRANSLATION7: iOS processing" );
-            int n;
-            FileOutputStream fileoutputstream;
-            fileoutputstream = new FileOutputStream(entryName);
-            while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
-              fileoutputstream.write(buf, 0, n);
-            }
-            fileoutputstream.close();
+            
+            // identify the master properties file
+            String masterFile = parentDir + name + extension;
+            // use the master file as a skeleton and fill in with translations from Crowdin
+            PropertiesConfiguration config = new PropertiesConfiguration(masterFile);
+            PropertiesConfiguration.setDefaultListDelimiter('=');            
+            config.setEncoding("UTF-8");
 
-            File propertiesFile = new File(entryName);
-            PropsToXML.parse(propertiesFile.getPath(), resourceBundleType);
-            propertiesFile.delete();
+            Properties propsCrowdin = new Properties();
+            propsCrowdin.load(zipinputstream);
+            Enumeration eCrowdin = propsCrowdin.propertyNames();
+            Enumeration eCrowdinPlus = propsCrowdin.propertyNames();
+
+            Properties propsCodeBase = new Properties();
+            propsCodeBase.load(new FileInputStream(new File(entryName)));
+            Enumeration eCodeBase = propsCodeBase.propertyNames();
+
+            HashMap<String, String> mapCrowdin = new HashMap<String, String>();
+            HashMap<String, String> mapCodeBase = new HashMap<String, String>();
+
+            while (eCrowdin.hasMoreElements()) {
+              String propKey = (String) eCrowdin.nextElement();
+              String valueKey = propsCrowdin.getProperty(propKey);
+              mapCrowdin.put(propKey, valueKey);
+            }
+
+            while (eCodeBase.hasMoreElements()) {
+              String propKeyCodeBase = (String) eCodeBase.nextElement();
+              String valueKeyCodeBase = propsCodeBase.getProperty(propKeyCodeBase);
+              mapCodeBase.put(propKeyCodeBase, valueKeyCodeBase);
+            }
+
+            while (eCrowdinPlus.hasMoreElements()) {
+              // key-value from crowdin
+              String propKey = (String) eCrowdinPlus.nextElement();
+              String valueKey = propsCrowdin.getProperty(propKey);
+
+              // if key exists in code base
+              if (mapCodeBase.containsKey(propKey)) {
+                String valueKeyCodeBase = mapCodeBase.get(propKey);
+
+                // if value crowdin is new with value code base, save this new key crowdin
+                if (!valueKey.equals(valueKeyCodeBase)) {
+                  // search propKey in code base then replace the new value
+                  FileUtils.replaceCharacters(entryName, valueKeyCodeBase, valueKey);
+                }
+
+              }
+              // if key is removed/added from codebase, do nothing
+              else {
+              }
+            }
             
           } else {
             // identify the master properties file
