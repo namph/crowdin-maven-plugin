@@ -83,7 +83,7 @@ public class IOSResouceBundleFileUtils {
       String line = "";
       boolean isCommentOrEmptyLine = false;
       while ((line = reader.readLine()) != null) {
-        if (line.trim().indexOf("//") == 0) {
+        if (line.trim().indexOf("//") == 0 || line.trim().length() == 0) {
           continue;
         }
         
