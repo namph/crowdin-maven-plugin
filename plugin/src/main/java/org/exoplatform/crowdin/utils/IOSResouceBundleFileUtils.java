@@ -163,9 +163,9 @@ public class IOSResouceBundleFileUtils {
   /*
    * Inject translation from crowdin translation file to resouce bundle file
    */
-  public static boolean injectTranslation(String crowdinFilePath, String resourceFilePath) {
+  public static boolean injectTranslation(String crowdinFilePath, String resourceMasterFilePath, String resoureTranslationFilePath) {
     List<String> crowdinList = readIOSResourceSkipCommentAndEmtyLine(crowdinFilePath);
-    List<String> resourcelist = readAllIOSResource(resourceFilePath);
+    List<String> resourcelist = readAllIOSResource(resourceMasterFilePath);
 
     if (resourcelist == null || resourcelist.isEmpty())
       return false;
@@ -181,7 +181,7 @@ public class IOSResouceBundleFileUtils {
         }
       }
     }
-    return saveListStringToFile(resourceFilePath, resourcelist);
+    return saveListStringToFile(resoureTranslationFilePath, resourcelist);
   }
 
   /*
