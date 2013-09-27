@@ -66,7 +66,7 @@ public class IOSResouceBundleFileUtils {
       reader.close();
       return output;
     } catch (IOException ioe) {
-      log.error(ioe);
+      getLog().error(ioe);
       return new ArrayList<String>();
     }
   }
@@ -110,7 +110,7 @@ public class IOSResouceBundleFileUtils {
       reader.close();
       return output;
     } catch (IOException ioe) {
-      log.error(ioe);
+      getLog().error(ioe);
       return new ArrayList<String>();
     }
   }
@@ -134,7 +134,7 @@ public class IOSResouceBundleFileUtils {
       
       return "";
     }catch (Exception e) {
-      log.info(e);
+      getLog().info(e);
       return "";
     }
   }
@@ -144,10 +144,15 @@ public class IOSResouceBundleFileUtils {
    */
   public static boolean isCommentOrEmptyLine(int lineIndex, List<String> linesOfFile) {
     if (linesOfFile == null || linesOfFile.isEmpty())
+      return true;
+    
+    String lineStr = "";
+    try{
+      lineStr = linesOfFile.get(lineIndex).trim();
+    }
+    catch (Exception e) {
       return false;
-
-    String lineStr = linesOfFile.get(lineIndex).trim();
-
+    }
     if (lineStr.length() == 0)
       return true;
 
@@ -183,7 +188,9 @@ public class IOSResouceBundleFileUtils {
     Iterator<String> resourceIterator = resourcelist.iterator();
     int resouceIndex = 0;
     while (resourceIterator.hasNext()) {
-      log.debug("\n Before Synch: codebase line " + resouceIndex + " = " + resourceIterator.next());
+      if(getLog().isDebugEnabled()){
+        getLog().debug("\n Before Synch: codebase line " + resouceIndex + " = " + resourceIterator.next());
+      }
       
       if (isCommentOrEmptyLine(resouceIndex, resourcelist) == false) {
         Iterator<String> crowdinIterator = crowdinList.iterator();
@@ -202,8 +209,10 @@ public class IOSResouceBundleFileUtils {
         }
         
       }
-      
-      log.debug("\n After Synch: codebase line " + resouceIndex + " = " + resourcelist.get(resouceIndex));
+      if(getLog().isDebugEnabled()){
+        getLog().debug("\n After Synch: codebase line " + resouceIndex + " = " + resourcelist.get(resouceIndex));
+      }
+      resourceIterator.next();
       resouceIndex++;
     }
 
@@ -213,13 +222,12 @@ public class IOSResouceBundleFileUtils {
     try{
       File file = new File(crowdinFilePath);
       if(file.delete()){
-        System.out.println(file.getName() + " is deleted!");
+        getLog().info(file.getName() + " is deleted!");
       }else{
-        System.out.println("Delete operation is failed.");
+        getLog().info("Delete operation is failed.");
       }
     }catch(Exception e){
-
-      e.printStackTrace();
+      getLog().error(e);
     }
     
     return saveTranslation;
