@@ -302,7 +302,6 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
             String localFile = parentDir + name + extension;
             String localizable = CrowdinTranslation.encodeIOSLocale(locale);
             String masterFile = localFile.replace(localizable + ".lproj", "en.lproj");   
-            ///home/annb/java/eXoProjects/crowdin-maven-plugin/translations/target/eXoProjects/ios/Resources/en.lproj/Localizable.strings
             String resoureTranslationFilePath = localFile;            
             //Write tempo zipinputstream
             int n;
@@ -313,72 +312,14 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
             }
             fileoutputstream.close();
             
-
-              //zip file path crowdin
-///home/annb/java/eXoProjects/crowdin-maven-plugin/translations/target/eXoProjects/ios/Resources/en.lproj/Localizable.strings.ziptempo
             String crowdinFilePath = resoureTranslationFilePath + ".ziptempo";
               
               //master file code base EN
-///home/annb/java/eXoProjects/crowdin-maven-plugin/translations/target/eXoProjects/ios/Resources/en.lproj/Localizable.strings
             String resourceMasterFilePath = masterFile;
               
-              //translation file code base LANGUAGE
-              IOSResouceBundleFileUtils.injectTranslation(crowdinFilePath, resourceMasterFilePath, resoureTranslationFilePath);
-
-            
-            
-//            // identify the master properties file
-//            String masterFile = parentDir + name + extension;
-//            // use the master file as a skeleton and fill in with translations from Crowdin
-//            PropertiesConfiguration config = new PropertiesConfiguration(masterFile);
-//            PropertiesConfiguration.setDefaultListDelimiter('=');            
-//            config.setEncoding("UTF-8");
-//
-//            Properties propsCrowdin = new Properties();
-//            propsCrowdin.load(zipinputstream);
-//            Enumeration eCrowdin = propsCrowdin.propertyNames();
-//            Enumeration eCrowdinPlus = propsCrowdin.propertyNames();
-//
-//            Properties propsCodeBase = new Properties();
-//            propsCodeBase.load(new FileInputStream(new File(entryName)));
-//            Enumeration eCodeBase = propsCodeBase.propertyNames();
-//
-//            HashMap<String, String> mapCrowdin = new HashMap<String, String>();
-//            HashMap<String, String> mapCodeBase = new HashMap<String, String>();
-//
-//            while (eCrowdin.hasMoreElements()) {
-//              String propKey = (String) eCrowdin.nextElement();
-//              String valueKey = propsCrowdin.getProperty(propKey);
-//              mapCrowdin.put(propKey, valueKey);
-//            }
-//
-//            while (eCodeBase.hasMoreElements()) {
-//              String propKeyCodeBase = (String) eCodeBase.nextElement();
-//              String valueKeyCodeBase = propsCodeBase.getProperty(propKeyCodeBase);
-//              mapCodeBase.put(propKeyCodeBase, valueKeyCodeBase);
-//            }
-//
-//            while (eCrowdinPlus.hasMoreElements()) {
-//              // key-value from crowdin
-//              String propKey = (String) eCrowdinPlus.nextElement();
-//              String valueKey = propsCrowdin.getProperty(propKey);
-//
-//              // if key exists in code base
-//              if (mapCodeBase.containsKey(propKey)) {
-//                String valueKeyCodeBase = mapCodeBase.get(propKey);
-//
-//                // if value crowdin is new with value code base, save this new key crowdin
-//                if (!valueKey.equals(valueKeyCodeBase)) {
-//                  // search propKey in code base then replace the new value
-//                  FileUtils.replaceCharacters(entryName, valueKeyCodeBase, valueKey);
-//                }
-//
-//              }
-//              // if key is removed/added from codebase, do nothing
-//              else {
-//              }
-//            }
-            
+            //translation file code base LANGUAGE
+            IOSResouceBundleFileUtils.injectTranslation(crowdinFilePath, resourceMasterFilePath, resoureTranslationFilePath);
+          
           } else {
             // identify the master properties file
             String masterFile = parentDir + name + extension;

@@ -24,6 +24,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.maven.plugin.logging.Log;
@@ -87,6 +88,10 @@ public class IOSResouceBundleFileUtils {
           continue;
         }
         
+        if(line.trim().indexOf("/*") == 0 && line.trim().indexOf("*/") >= 0){
+          continue;
+        }
+        
         if(line.trim().indexOf("/*") == 0){
           isCommentOrEmptyLine=true;
           continue;
@@ -113,23 +118,24 @@ public class IOSResouceBundleFileUtils {
   /*
    * Update translation from crowdin a crowdin file line to a resouce bundle file line
    */
-  public static boolean updateTranslationByLine(String sourceLine, String crowdinLine) {
-    if(sourceLine.trim().length()==0 || crowdinLine.trim().length() ==0)
-      return false;
+  public static String updateTranslationByLine(String sourceLine, String crowdinLine) {
+    if(sourceLine.toString().trim().length()==0 || crowdinLine.trim().length() ==0)
+      return "";
     try{
-      String sourceKey = sourceLine.split("=")[0].trim();
+      String sourceKey = sourceLine.toString().split("=")[0].trim();
       String crowdinKey = crowdinLine.split("=")[0].trim();
       if(sourceKey.equals(crowdinKey)){
         StringBuffer buffer = new  StringBuffer(sourceKey);
         String crowdinValue = crowdinLine.split("=")[1].trim();
         buffer.append(" = ").append(crowdinValue);
         sourceLine = buffer.toString();
-        return true;
+        return sourceLine;
       }      
       
-      return false;
+      return "";
     }catch (Exception e) {
-      return false;
+      log.info(e);
+      return "";
     }
   }
 
@@ -145,23 +151,27 @@ public class IOSResouceBundleFileUtils {
     if (lineStr.length() == 0)
       return true;
 
-    if (lineStr.indexOf("//") == 0 || lineStr.indexOf("/*") == 0)
+    if (lineStr.indexOf("//") == 0 || lineStr.indexOf("/*") == 0 || lineStr.indexOf("*/") >= 0)
       return true;
 
-    int checkIndex = lineIndex;
+    int checkIndex = lineIndex-1;
 
     while (checkIndex >= 0) {
       String previousLineString = linesOfFile.get(checkIndex).trim();
-      if (previousLineString.indexOf("//") == 0 || previousLineString.indexOf("/*") == 0)
+      if (previousLineString.indexOf("/*") == 0)
         return true;
-      else
-        checkIndex--;
+      
+      if( previousLineString.indexOf("*/") >= 0)
+        return false;
+      
+      checkIndex--;
     }
     return false;
   }
 
   /*
    * Inject translation from crowdin translation file to resouce bundle file
+   * After injection, file @crowdinFilePath will be deleted
    */
   public static boolean injectTranslation(String crowdinFilePath, String resourceMasterFilePath, String resoureTranslationFilePath) {
     List<String> crowdinList = readIOSResourceSkipCommentAndEmtyLine(crowdinFilePath);
@@ -170,24 +180,56 @@ public class IOSResouceBundleFileUtils {
     if (resourcelist == null || resourcelist.isEmpty())
       return false;
 
-    for (int resouceIndex = 0; resouceIndex <= resourcelist.size(); resouceIndex++) {
+    Iterator<String> resourceIterator = resourcelist.iterator();
+    int resouceIndex = 0;
+    while (resourceIterator.hasNext()) {
+      log.debug("\n Before Synch: codebase line " + resouceIndex + " = " + resourceIterator.next());
+      
       if (isCommentOrEmptyLine(resouceIndex, resourcelist) == false) {
-
-        for (int crowdinIndex = 0; crowdinIndex <= crowdinList.size(); crowdinIndex++) {
-          if (updateTranslationByLine(resourcelist.get(resouceIndex), crowdinList.get(crowdinIndex))) {
+        Iterator<String> crowdinIterator = crowdinList.iterator();
+        int crowdinIndex = 0;
+        
+        while (crowdinIterator.hasNext()) {
+          String sourceLine = resourcelist.get(resouceIndex);
+          String newSourceLine = updateTranslationByLine(sourceLine, crowdinList.get(crowdinIndex));
+          if (newSourceLine.length() > 0 && sourceLine.equals(newSourceLine) == false) {
+            resourcelist.set(resouceIndex, newSourceLine);
             crowdinList.remove(crowdinIndex);
             break;
           }
+          crowdinIterator.next();
+          crowdinIndex++;
         }
+        
       }
+      
+      log.debug("\n After Synch: codebase line " + resouceIndex + " = " + resourcelist.get(resouceIndex));
+      resouceIndex++;
     }
-    return saveListStringToFile(resoureTranslationFilePath, resourcelist);
+
+    boolean saveTranslation = saveListStringToFile(resoureTranslationFilePath, resourcelist);
+    
+    //Delete crowdin temporary file
+    try{
+      File file = new File(crowdinFilePath);
+      if(file.delete()){
+        System.out.println(file.getName() + " is deleted!");
+      }else{
+        System.out.println("Delete operation is failed.");
+      }
+    }catch(Exception e){
+
+      e.printStackTrace();
+    }
+    
+    return saveTranslation;
   }
 
   /*
    * Save a list<String> that contains iOS resouce bundle file lines to file
    */
   public static boolean saveListStringToFile(String filePath, List<String> listString) {
+    System.out.println("Save translation to file " + filePath);
     try {
       StringBuffer content = new StringBuffer();
 
