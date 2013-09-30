@@ -26,10 +26,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -43,7 +41,6 @@ import org.exoplatform.crowdin.model.CrowdinFile.Type;
 import org.exoplatform.crowdin.model.CrowdinFileFactory;
 import org.exoplatform.crowdin.model.CrowdinTranslation;
 import org.exoplatform.crowdin.model.SourcesRepository;
-import org.exoplatform.crowdin.utils.FileUtils;
 import org.exoplatform.crowdin.utils.IOSResouceBundleFileUtils;
 import org.exoplatform.crowdin.utils.PropsToXML;
 
@@ -147,16 +144,7 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
   }
 
   private void applyTranslations(File _destFolder, String _zipFile, String locale) {
-    
-   // [INFO] _destFolder : /home/annb/java/eXoProjects/crowdin-maven-plugin/translations/target/eXoProjects
-   // [INFO] _zipFile : /home/annb/java/eXoProjects/crowdin-maven-plugin/translations/target/translations.zip
-   // [INFO] locale : en
-   // zipentryname: de/mobile/ios/Localizable.strings 
-    
-    getLog().info("_destFolder : " + _destFolder);
-    getLog().info("_zipFile : " + _zipFile);
-    getLog().info("locale : " + locale);
-    
+   
     try {
       byte[] buf = new byte[1024];
       ZipInputStream zipinputstream = null;
@@ -211,8 +199,7 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
           /**
            * if iOS, don't save to default master folder but save to
            * "language.proj" folder (for example)
-           * /Resources/en.lproj/Localizable.string >
-           * /Resources/fr.lproj/Localizable.string
+           * /Resources/en.lproj/Localizable.string > /Resources/fr.lproj/Localizable.string
            */
           else if (zipentryName.contains("ios")) {
             if (!locale.contains("en")) {
@@ -275,7 +262,11 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
 
           if (isXML) {
             // create the temporary properties file to be used for PropsToXML (use the file in Crowdin zip)
-            entryName = entryName.replaceAll(".xml", ".properties");
+            //if not in mobile project, convert xml to properties
+            if (!zipentryName.contains("mobile")) {
+              entryName = entryName.replaceAll(".xml", ".properties");
+            }
+            
             int n;
             FileOutputStream fileoutputstream;
             fileoutputstream = new FileOutputStream(entryName);
