@@ -358,7 +358,6 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
           }
           zipinputstream.closeEntry();
         } catch (Exception e) {
-          e.printStackTrace();
           getLog().warn("Error while applying change for " + zipentryName + " - " + fileName + " : " + e.getMessage());
         }
         zipentry = zipinputstream.getNextEntry();
