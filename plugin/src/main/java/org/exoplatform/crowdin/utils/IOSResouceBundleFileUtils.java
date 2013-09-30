@@ -174,11 +174,15 @@ public class IOSResouceBundleFileUtils {
     return false;
   }
 
-  /*
-   * Inject translation from crowdin translation file to resouce bundle file
-   * After injection, file @crowdinFilePath will be deleted
-   */
-  public static boolean injectTranslation(String crowdinFilePath, String resourceMasterFilePath, String resoureTranslationFilePath) {
+/**
+ * Inject translation from crowdin translation file to resouce bundle file
+ * After injection, file @crowdinFilePath will be deleted
+ * @param crowdinFilePath: temporaire zip locale file extracted
+ * @param resourceMasterFilePath: master file (en) in codebase
+ * @param resourceTranslationFilePath: locale file in codebase
+ * @return
+ */
+  public static boolean injectTranslation(String crowdinFilePath, String resourceMasterFilePath, String resourceTranslationFilePath) {
     List<String> crowdinList = readIOSResourceSkipCommentAndEmtyLine(crowdinFilePath);
     List<String> resourcelist = readAllIOSResource(resourceMasterFilePath);
 
@@ -216,7 +220,7 @@ public class IOSResouceBundleFileUtils {
       resouceIndex++;
     }
 
-    boolean saveTranslation = saveListStringToFile(resoureTranslationFilePath, resourcelist);
+    boolean saveTranslation = saveListStringToFile(resourceTranslationFilePath, resourcelist);
     
     //Delete crowdin temporary file
     try{

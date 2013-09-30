@@ -144,7 +144,7 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
   }
 
   private void applyTranslations(File _destFolder, String _zipFile, String locale) {
-
+   
     try {
       byte[] buf = new byte[1024];
       ZipInputStream zipinputstream = null;
@@ -199,8 +199,7 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
           /**
            * if iOS, don't save to default master folder but save to
            * "language.proj" folder (for example)
-           * /Resources/en.lproj/Localizable.string >
-           * /Resources/fr.lproj/Localizable.string
+           * /Resources/en.lproj/Localizable.string > /Resources/fr.lproj/Localizable.string
            */
           else if (zipentryName.contains("ios")) {
             if (!locale.contains("en")) {
@@ -263,7 +262,11 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
 
           if (isXML) {
             // create the temporary properties file to be used for PropsToXML (use the file in Crowdin zip)
-            entryName = entryName.replaceAll(".xml", ".properties");
+            //if not in mobile project, convert xml to properties
+            if (!zipentryName.contains("mobile")) {
+              entryName = entryName.replaceAll(".xml", ".properties");
+            }
+            
             int n;
             FileOutputStream fileoutputstream;
             fileoutputstream = new FileOutputStream(entryName);
@@ -290,23 +293,23 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
             String localFile = parentDir + name + extension;
             String localizable = CrowdinTranslation.encodeIOSLocale(locale);
             String masterFile = localFile.replace(localizable + ".lproj", "en.lproj");   
-            String resoureTranslationFilePath = localFile;            
+            String resourceTranslationFilePath = localFile;            
             //Write tempo zipinputstream
             int n;
             FileOutputStream fileoutputstream;
-            fileoutputstream = new FileOutputStream(resoureTranslationFilePath+".ziptempo");
+            fileoutputstream = new FileOutputStream(resourceTranslationFilePath+".ziptempo");
             while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
               fileoutputstream.write(buf, 0, n);
             }
             fileoutputstream.close();
             
-            String crowdinFilePath = resoureTranslationFilePath + ".ziptempo";
+            String crowdinFilePath = resourceTranslationFilePath + ".ziptempo";
               
               //master file code base EN
             String resourceMasterFilePath = masterFile;
               
             //translation file code base LANGUAGE
-            IOSResouceBundleFileUtils.injectTranslation(crowdinFilePath, resourceMasterFilePath, resoureTranslationFilePath);
+            IOSResouceBundleFileUtils.injectTranslation(crowdinFilePath, resourceMasterFilePath, resourceTranslationFilePath);
           
           } else {
             // identify the master properties file
