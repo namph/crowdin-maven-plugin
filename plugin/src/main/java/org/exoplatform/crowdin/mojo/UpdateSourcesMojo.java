@@ -293,23 +293,23 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
             String localFile = parentDir + name + extension;
             String localizable = CrowdinTranslation.encodeIOSLocale(locale);
             String masterFile = localFile.replace(localizable + ".lproj", "en.lproj");   
-            String resoureTranslationFilePath = localFile;            
+            String resourceTranslationFilePath = localFile;            
             //Write tempo zipinputstream
             int n;
             FileOutputStream fileoutputstream;
-            fileoutputstream = new FileOutputStream(resoureTranslationFilePath+".ziptempo");
+            fileoutputstream = new FileOutputStream(resourceTranslationFilePath+".ziptempo");
             while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
               fileoutputstream.write(buf, 0, n);
             }
             fileoutputstream.close();
             
-            String crowdinFilePath = resoureTranslationFilePath + ".ziptempo";
+            String crowdinFilePath = resourceTranslationFilePath + ".ziptempo";
               
               //master file code base EN
             String resourceMasterFilePath = masterFile;
               
             //translation file code base LANGUAGE
-            IOSResouceBundleFileUtils.injectTranslation(crowdinFilePath, resourceMasterFilePath, resoureTranslationFilePath);
+            IOSResouceBundleFileUtils.injectTranslation(crowdinFilePath, resourceMasterFilePath, resourceTranslationFilePath);
           
           } else {
             // identify the master properties file

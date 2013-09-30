@@ -66,7 +66,7 @@ public class IOSResouceBundleFileUtils {
       reader.close();
       return output;
     } catch (IOException ioe) {
-      log.error(ioe);
+      getLog().error(ioe);
       return new ArrayList<String>();
     }
   }
@@ -110,7 +110,7 @@ public class IOSResouceBundleFileUtils {
       reader.close();
       return output;
     } catch (IOException ioe) {
-      log.error(ioe);
+      getLog().error(ioe);
       return new ArrayList<String>();
     }
   }
@@ -134,7 +134,7 @@ public class IOSResouceBundleFileUtils {
       
       return "";
     }catch (Exception e) {
-      log.info(e);
+      getLog().info(e);
       return "";
     }
   }
@@ -144,10 +144,15 @@ public class IOSResouceBundleFileUtils {
    */
   public static boolean isCommentOrEmptyLine(int lineIndex, List<String> linesOfFile) {
     if (linesOfFile == null || linesOfFile.isEmpty())
+      return true;
+    
+    String lineStr = "";
+    try{
+      lineStr = linesOfFile.get(lineIndex).trim();
+    }
+    catch (Exception e) {
       return false;
-
-    String lineStr = linesOfFile.get(lineIndex).trim();
-
+    }
     if (lineStr.length() == 0)
       return true;
 
@@ -169,11 +174,15 @@ public class IOSResouceBundleFileUtils {
     return false;
   }
 
-  /*
-   * Inject translation from crowdin translation file to resouce bundle file
-   * After injection, file @crowdinFilePath will be deleted
-   */
-  public static boolean injectTranslation(String crowdinFilePath, String resourceMasterFilePath, String resoureTranslationFilePath) {
+/**
+ * Inject translation from crowdin translation file to resouce bundle file
+ * After injection, file @crowdinFilePath will be deleted
+ * @param crowdinFilePath: temporaire zip locale file extracted
+ * @param resourceMasterFilePath: master file (en) in codebase
+ * @param resourceTranslationFilePath: locale file in codebase
+ * @return
+ */
+  public static boolean injectTranslation(String crowdinFilePath, String resourceMasterFilePath, String resourceTranslationFilePath) {
     List<String> crowdinList = readIOSResourceSkipCommentAndEmtyLine(crowdinFilePath);
     List<String> resourcelist = readAllIOSResource(resourceMasterFilePath);
 
@@ -183,7 +192,9 @@ public class IOSResouceBundleFileUtils {
     Iterator<String> resourceIterator = resourcelist.iterator();
     int resouceIndex = 0;
     while (resourceIterator.hasNext()) {
-      log.debug("\n Before Synch: codebase line " + resouceIndex + " = " + resourceIterator.next());
+      if(getLog().isDebugEnabled()){
+        getLog().debug("\n Before Synch: codebase line " + resouceIndex + " = " + resourceIterator.next());
+      }
       
       if (isCommentOrEmptyLine(resouceIndex, resourcelist) == false) {
         Iterator<String> crowdinIterator = crowdinList.iterator();
@@ -202,24 +213,25 @@ public class IOSResouceBundleFileUtils {
         }
         
       }
-      
-      log.debug("\n After Synch: codebase line " + resouceIndex + " = " + resourcelist.get(resouceIndex));
+      if(getLog().isDebugEnabled()){
+        getLog().debug("\n After Synch: codebase line " + resouceIndex + " = " + resourcelist.get(resouceIndex));
+      }
+      resourceIterator.next();
       resouceIndex++;
     }
 
-    boolean saveTranslation = saveListStringToFile(resoureTranslationFilePath, resourcelist);
+    boolean saveTranslation = saveListStringToFile(resourceTranslationFilePath, resourcelist);
     
     //Delete crowdin temporary file
     try{
       File file = new File(crowdinFilePath);
       if(file.delete()){
-        System.out.println(file.getName() + " is deleted!");
+        getLog().info(file.getName() + " is deleted!");
       }else{
-        System.out.println("Delete operation is failed.");
+        getLog().info("Delete operation is failed.");
       }
     }catch(Exception e){
-
-      e.printStackTrace();
+      getLog().error(e);
     }
     
     return saveTranslation;
