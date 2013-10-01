@@ -35,6 +35,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.plugin.logging.Log;
@@ -46,8 +47,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import com.sun.xml.internal.bind.v2.runtime.reflect.ListIterator;
 
 /**
  * Created by The eXo Platform SAS 30 Sep 2013 Reuse from
@@ -69,14 +68,24 @@ public class XMLResourceBundleUtils {
     return log;
   }
 
-  public static Map<String, List<String>> asMap(InputStream in) {
+  /**
+   * Read data from XML InputStream
+   * @param in
+   * @return a Map<String, List<String>> that contains all xpath:node-data of XML InputStream
+   */
+  public static Map<String, List<String>> readXMLToMap(InputStream in) {
     if (in == null) {
       throw new IllegalArgumentException("No null input stream allowed");
     }
     return readXMLToMap(new InputSource(in));
   }
 
-  public static Map<String, List<String>> asMap(Reader in) {
+  /**
+   * Read data from XML Reader
+   * @param in
+   * @return a Map<String, List<String>> that contains all xpath:node-data of XML InputStream
+   */
+  public static Map<String, List<String>> readXMLToMap(Reader in) {
     if (in == null) {
       throw new IllegalArgumentException("No null reader allowed");
     }
@@ -99,9 +108,9 @@ public class XMLResourceBundleUtils {
 
       LinkedList<String> path = new LinkedList<String>();
       path.addLast("//" + document.getDocumentElement().getNodeName());
-      getLog().debug("Start traverse XML doc with root Node: "+document.getDocumentElement().getNodeName());
+      getLog().debug("Start traverse XML doc with root Node: " + document.getDocumentElement().getNodeName());
       collect(path, bundleElt, bundle);
-      getLog().debug("End traverse XML doc with root Node: "+document.getDocumentElement().getNodeName());
+      getLog().debug("End traverse XML doc with root Node: " + document.getDocumentElement().getNodeName());
     } catch (SAXException e) {
       getLog().error(e);
     } catch (IOException e) {
@@ -109,13 +118,11 @@ public class XMLResourceBundleUtils {
     } catch (ParserConfigurationException e) {
       getLog().error(e);
     }
-    
+
     return bundle;
   }
 
-  private static void collect(LinkedList<String> path,
-                              Element currentElt,
-                              Map<String, List<String>> bundle) {
+  private static void collect(LinkedList<String> path, Element currentElt, Map<String, List<String>> bundle) {
     NodeList children = currentElt.getChildNodes();
 
     boolean text = true;
@@ -168,41 +175,118 @@ public class XMLResourceBundleUtils {
     }
   }
 
-  public static String saveMapToXMLFile(String xmlPathFile, Map<String, List<String>> mapData) {
+  /**
+   * Inject translation from a Map (crowdinMapData) to xmlFile (xmlTranslationResouceFilePath)
+   * @param xmlTranslationResouceFilePath
+   * @param xmlMasterResourceFilePath
+   * @param crowdinMapData
+   * @return
+   */
+  public static String saveMapToXMLFile(String xmlTranslationResouceFilePath,
+                                        String xmlMasterResourceFilePath,
+                                        Map<String, List<String>> crowdinMapData) {
     try {
 
       DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
       DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-      Document doc = docBuilder.parse(xmlPathFile);
+      // Document translationResourceDoc =
+      // docBuilder.parse(xmlTranslationResoucePathFile);
+      Document masterResourceDoc = docBuilder.parse(xmlMasterResourceFilePath);
 
       XPathFactory factory = XPathFactory.newInstance();
       XPath xpath = factory.newXPath();
 
-      Iterator<Map.Entry<String, List<String>>> iterator = mapData.entrySet().iterator();
-      while (iterator.hasNext()) {
-        Map.Entry<String, List<String>> mapEntry = (Map.Entry<String, List<String>>) iterator.next();
-        System.out.println("The key is: " + mapEntry.getKey() + ",value is :" + mapEntry.getValue());
-
-        // find the node
-        Node node = (Node) xpath.evaluate(mapEntry.getKey() + "", doc, XPathConstants.NODE);
+      Iterator crowdinIterator = crowdinMapData.entrySet().iterator();
+      while (crowdinIterator.hasNext()) {
+        Map.Entry mapEntry = (Map.Entry) crowdinIterator.next();
+        List<String> listData = (List<String>) mapEntry.getValue();
+        String nodeData = "";
+        if (mapEntry != null && listData.size() > 0) {
+          nodeData = listData.get(0);
+        }
+        System.out.println("The key is: " + mapEntry.getKey() + ",value is :" + nodeData);
+        Node node = null;
+        try {
+          node = (Node) xpath.evaluate(mapEntry.getKey() + "", masterResourceDoc, XPathConstants.NODE);
+        } catch (XPathExpressionException e) {
+          continue;
+        }
 
         // update new value for node
-        node.setTextContent(null != mapEntry.getValue() ? mapEntry.getValue() + "" : "");
+        if (node != null) {
+          node.setTextContent(null != nodeData ? nodeData : "");
+        }
       }
 
       // write the content into xml file
       TransformerFactory transformerFactory = TransformerFactory.newInstance();
       Transformer transformer = transformerFactory.newTransformer();
-      DOMSource source = new DOMSource(doc);
-      StreamResult result = new StreamResult(new File(xmlPathFile));
+      DOMSource source = new DOMSource(masterResourceDoc);
+      StreamResult result = new StreamResult(new File(xmlTranslationResouceFilePath));
       transformer.transform(source, result);
 
-      // TODO
       // return XML file path after save mapData to XML file
+      return xmlTranslationResouceFilePath;
+
     } catch (Exception e) {
-      log.error(e);
+      e.printStackTrace();
     }
     return null;
 
+  }
+
+  /**
+   * Inject translation from crowdin to code base resource translation
+   * 
+   * @param crowdinFile
+   * @param resourceMasterFile
+   * @param resourceTranslationFilePath
+   * @return
+   */
+  public static String injectTranslation(InputSource crowdinFile,
+                                         String resourceTranslationFilePath,
+                                         String resourceMasterFilePath) {
+
+    Map<String, List<String>> crowdinDataMap = new HashMap<String, List<String>>();
+    try {
+      // Read Crowdin translation into map
+      crowdinDataMap = readXMLToMap(crowdinFile);
+      resourceTranslationFilePath = saveMapToXMLFile(resourceTranslationFilePath, resourceMasterFilePath, crowdinDataMap);
+      return resourceTranslationFilePath;
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  /**
+   * Inject translation from crowdin to code base resource translation
+   * @param crowdinFile
+   * @param resourceTranslationFilePath
+   * @param resourceMasterFilePath
+   * @return
+   */
+  public static String injectTranslation(InputStream crowdinFile,
+                                         String resourceTranslationFilePath,
+                                         String resourceMasterFilePath) {
+
+    if (crowdinFile == null) {
+      throw new IllegalArgumentException("No null input stream allowed");
+    }
+    return injectTranslation(new InputSource(crowdinFile), resourceTranslationFilePath, resourceMasterFilePath);
+  }
+
+  /**
+   * Inject translation from crowdin to code base resource translation
+   * @param crowdinFile
+   * @param resourceTranslationFilePath
+   * @param resourceMasterFilePath
+   * @return
+   */
+  public static String injectTranslation(Reader crowdinFile, String resourceTranslationFilePath, String resourceMasterFilePath) {
+
+    if (crowdinFile == null) {
+      throw new IllegalArgumentException("No null input stream allowed");
+    }
+    return injectTranslation(new InputSource(crowdinFile), resourceTranslationFilePath, resourceMasterFilePath);
   }
 }
