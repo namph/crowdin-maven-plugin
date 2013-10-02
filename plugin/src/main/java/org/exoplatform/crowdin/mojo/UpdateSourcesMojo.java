@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.exoplatform.crowdin.model.CrowdinTranslation;
 import org.exoplatform.crowdin.model.SourcesRepository;
 import org.exoplatform.crowdin.utils.IOSResouceBundleFileUtils;
 import org.exoplatform.crowdin.utils.PropsToXML;
+import org.exoplatform.crowdin.utils.XMLResourceBundleUtils;
 
 /**
  * Update projects sources from crowdin translations
@@ -144,7 +146,6 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
   }
 
   private void applyTranslations(File _destFolder, String _zipFile, String locale) {
-   
     try {
       byte[] buf = new byte[1024];
       ZipInputStream zipinputstream = null;
@@ -186,6 +187,11 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
           String key = zipentryName.substring(zipentryName.indexOf(cp) + cp.length() + 1);
           String value = currentProj.getProperty(key);
           
+          if (value == null) {
+            zipentry = zipinputstream.getNextEntry();
+            continue;
+          }
+          
           /**
            * if android, don't save to default master folder but save to
            * "values-language" folder (for example) res/values/strings.xml > res/values-fr/strings.xml
@@ -206,11 +212,6 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
               String localizable = CrowdinTranslation.encodeIOSLocale(locale);
               value = value.replace("en.lproj", localizable + ".lproj");
             }
-          }
-          
-          if (value == null) {
-            zipentry = zipinputstream.getNextEntry();
-            continue;
           }
           zipentryName = zipentryName.substring(0, zipentryName.indexOf(proj) + proj.length());
 
@@ -261,30 +262,64 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
           boolean isXML = (entryName.indexOf(".xml") > 0);
 
           if (isXML) {
-            // create the temporary properties file to be used for PropsToXML (use the file in Crowdin zip)
-            //if not in mobile project, convert xml to properties
-            if (!zipentryName.contains("mobile")) {
-              entryName = entryName.replaceAll(".xml", ".properties");
-            }
-            
-            int n;
-            FileOutputStream fileoutputstream;
-            fileoutputstream = new FileOutputStream(entryName);
-            while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
-              fileoutputstream.write(buf, 0, n);
-            }
-            fileoutputstream.close();
+            //if is Android resouce bundle
+            if(zipentryName.contains("mobile") && zipentryName.contains("android")){
+              String resourceTranslationFilePath  = parentDir + name + extension;
+              String localizable = CrowdinTranslation.encodeAndroidLocale(locale);
+              String masterFilePath = resourceTranslationFilePath.replaceAll("-" + localizable, "");
 
-            File propertiesFile = new File(entryName);     
-            
-            // don't convert to ascii in mobile project
-            if (!zipentryName.contains("mobile")) {
-              PropsToXML.execShellCommand("native2ascii -encoding UTF8 " + propertiesFile.getPath()
-                  + " " + propertiesFile.getPath());
+              //create temporary file to persists zipinputstream
+              int n;
+              FileOutputStream fileoutputstream;
+              fileoutputstream = new FileOutputStream(resourceTranslationFilePath+".ziptempo");
+              while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
+                fileoutputstream.write(buf, 0, n);
+              }
+              fileoutputstream.close();
+              String crowdinFilePath = resourceTranslationFilePath + ".ziptempo";
+              FileInputStream input = new FileInputStream(crowdinFilePath);
+              XMLResourceBundleUtils.injectTranslation(input, resourceTranslationFilePath, masterFilePath);
+              
+              //delete ziptempo file
+              try{
+                File file = new File(crowdinFilePath);
+                if(file.delete()){
+                  if(getLog().isDebugEnabled())
+                    getLog().debug(file.getName() + " is deleted!");
+                }else{
+                  if(getLog().isDebugEnabled())
+                    getLog().debug("Delete operation is failed.");
+                }
+              }catch(Exception e){
+                getLog().error(e);
+              }
             }
-
-            PropsToXML.parse(propertiesFile.getPath(), resourceBundleType);
-            propertiesFile.delete();
+            else{
+              // create the temporary properties file to be used for PropsToXML (use the file in Crowdin zip) 
+              //if not in mobile project, convert xml to properties
+              if (!zipentryName.contains("mobile")) {
+                entryName = entryName.replaceAll(".xml", ".properties");
+              }
+              
+              int n;
+              FileOutputStream fileoutputstream;
+              fileoutputstream = new FileOutputStream(entryName);
+              while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
+                fileoutputstream.write(buf, 0, n);
+              }
+              fileoutputstream.close();
+  
+              File propertiesFile = new File(entryName);     
+              
+              // don't convert to ascii in mobile project
+              if (!zipentryName.contains("mobile")) {
+                PropsToXML.execShellCommand("native2ascii -encoding UTF8 " + propertiesFile.getPath()
+                    + " " + propertiesFile.getPath());
+              }
+  
+              PropsToXML.parse(propertiesFile.getPath(), resourceBundleType);
+              propertiesFile.delete();
+            }
           }
           
           // when project is iOS
