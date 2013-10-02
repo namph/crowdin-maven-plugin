@@ -108,9 +108,11 @@ public class XMLResourceBundleUtils {
 
       LinkedList<String> path = new LinkedList<String>();
       path.addLast("//" + document.getDocumentElement().getNodeName());
-      getLog().debug("Start traverse XML doc with root Node: " + document.getDocumentElement().getNodeName());
+      if(getLog().isDebugEnabled())
+        getLog().debug("Start traverse XML doc with root Node: " + document.getDocumentElement().getNodeName());
       collect(path, bundleElt, bundle);
-      getLog().debug("End traverse XML doc with root Node: " + document.getDocumentElement().getNodeName());
+      if(getLog().isDebugEnabled())
+        getLog().debug("End traverse XML doc with root Node: " + document.getDocumentElement().getNodeName());
     } catch (SAXException e) {
       getLog().error(e);
     } catch (IOException e) {
@@ -145,7 +147,8 @@ public class XMLResourceBundleUtils {
           }
           name.append("]");
         }
-        getLog().debug("Current Node: " + name.toString());
+        if(getLog().isDebugEnabled())
+          getLog().debug("Current Node: " + name.toString());
         path.addLast(name.toString());
         collect(path, childElt, bundle);
         path.removeLast();
@@ -163,7 +166,8 @@ public class XMLResourceBundleUtils {
         }
       }
       String key = sb.toString();
-      getLog().debug("Current path: " + key);
+      if(getLog().isDebugEnabled())
+        getLog().debug("Current path: " + key);
       if (bundle.containsKey(key)) {
         bundle.get(key).add(valueStr);
       } else {
@@ -204,7 +208,8 @@ public class XMLResourceBundleUtils {
         if (mapEntry != null && listData.size() > 0) {
           nodeData = listData.get(0);
         }
-        System.out.println("The key is: " + mapEntry.getKey() + ",value is :" + nodeData);
+        if(getLog().isDebugEnabled())
+          getLog().debug("The key is: " + mapEntry.getKey() + ",value is :" + nodeData);
         Node node = null;
         try {
           node = (Node) xpath.evaluate(mapEntry.getKey() + "", masterResourceDoc, XPathConstants.NODE);

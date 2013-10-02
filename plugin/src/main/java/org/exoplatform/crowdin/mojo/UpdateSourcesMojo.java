@@ -278,6 +278,7 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
               fileoutputstream.close();
               String crowdinFilePath = resourceTranslationFilePath + ".ziptempo";
               FileInputStream input = new FileInputStream(crowdinFilePath);
+              XMLResourceBundleUtils.setLog(getLog());
               XMLResourceBundleUtils.injectTranslation(input, resourceTranslationFilePath, masterFilePath);
               
               //delete ziptempo file
@@ -344,6 +345,7 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
             String resourceMasterFilePath = masterFile;
               
             //translation file code base LANGUAGE
+            IOSResouceBundleFileUtils.setLog(getLog());
             IOSResouceBundleFileUtils.injectTranslation(crowdinFilePath, resourceMasterFilePath, resourceTranslationFilePath);
           
           } else {
