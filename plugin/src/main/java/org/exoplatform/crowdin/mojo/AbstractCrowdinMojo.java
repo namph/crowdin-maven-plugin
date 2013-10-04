@@ -370,10 +370,10 @@ public abstract class AbstractCrowdinMojo extends AbstractMojo {
     }
  
     List<File> files = new ArrayList<File>();
+    List<String> languagesToProcess = getLanguages();    
     // processing for Android or iOs
     if ((dir.getPath().contains("android")) || ((dir.getPath().contains("ios")))) {
-      List<String> languagesToProcess = new ArrayList<String>();
-      languagesToProcess = getLanguages();
+      
       
       // remove "en" language default in the list, just send translations files      
       if (languagesToProcess.contains("en")) {
@@ -473,6 +473,10 @@ public abstract class AbstractCrowdinMojo extends AbstractMojo {
         getLog().debug("=============================================================================");
         getLog().debug(printFileContent(cTran.getFile()));
         getLog().debug("=============================================================================");
+      }
+      if(!getLanguages().contains(cTran.getLang())){
+        getLog().warn("Language "+cTran.getLang()+" is not configured to be processed");
+        return;
       }
       
       String result = getHelper().uploadTranslation(cTran);
