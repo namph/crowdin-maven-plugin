@@ -395,7 +395,11 @@ public abstract class AbstractCrowdinMojo extends AbstractMojo {
           replaceLanguagePathName = dir.getPath().replaceAll("en.lproj",localizable+".lproj");
           }          
           // add translation files in list
-          files.add(new File(replaceLanguagePathName + File.separator + masterFileName));        
+          File fileToAdd = new File(replaceLanguagePathName + File.separator + masterFileName);
+          if (fileToAdd.exists()) {
+            files.add(fileToAdd);
+          }
+                  
       }
     }
     // processing for other projects
