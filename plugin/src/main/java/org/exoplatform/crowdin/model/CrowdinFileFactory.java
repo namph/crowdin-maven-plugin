@@ -51,15 +51,7 @@ public class CrowdinFileFactory {
     String type = _path.substring(_path.lastIndexOf('.') + 1);
     boolean shouldBeCleaned = false;
     
-    // process only for projects, not for mobile 
-    if (type.equals("xml") && (!_project.contains("mobile"))) {
-      file = fromXMLToProps(file);
-      _path = file.getPath();
-      type = "properties";
-      shouldBeCleaned = true;
-    }
-    
-    else if (_project.contains("android")){
+    if (_project.contains("android")){
       type = "xml";
     }
     else if (_project.contains("ios")){
@@ -120,26 +112,6 @@ public class CrowdinFileFactory {
   }
 
   /**
-   * Transforms an XML resource bundle into a Properties one.
-   *
-   * @param _xmlFile the File to transform
-   * @return the Properties File.
-   */
-  private File fromXMLToProps(File _xmlFile) {
-    String path = _xmlFile.getPath();
-    try {
-      Type type = path.contains("gadget") && !path.contains("GadgetPortlet") ? Type.GADGET : Type.PORTLET;
-      if (XMLToProps.parse(path, type)) {
-        path = path.replaceAll(".xml", ".properties");
-        return new File(path);
-      }
-    } catch (Exception e) {
-      currentMojo.getLog().error("Cannot transform " + path + " into a properties file. Reason:\n", e);
-    }
-    return _xmlFile;
-  }
-
-  /**
    * Creates and return a CrowdinTranslation.
    *
    * @param _master          The master CrowdinFile for this translation
@@ -150,11 +122,7 @@ public class CrowdinFileFactory {
     String type = _translationFile.getName().substring(_translationFile.getName().lastIndexOf('.') + 1);
 
     boolean shouldBeCleaned = false;
-    // don't convert xml to properties when in mobile project
-    if (type.equals("xml") && !(_master.getProject().contains("mobile"))) {
-      _translationFile = fromXMLToProps(_translationFile);
-      shouldBeCleaned = true;
-    }
+    
 
     String name, lang="";
     
