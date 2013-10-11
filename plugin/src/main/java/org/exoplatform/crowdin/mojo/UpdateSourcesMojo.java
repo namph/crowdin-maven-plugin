@@ -262,65 +262,39 @@ public class UpdateSourcesMojo extends AbstractCrowdinMojo {
           boolean isXML = (entryName.indexOf(".xml") > 0);
 
           if (isXML) {
-            //if is Android resouce bundle
+            //if is Android resouce bundle            
+            
+            String masterFilePath = entryName;
             if(zipentryName.contains("mobile") && zipentryName.contains("android")){
-              String resourceTranslationFilePath  = parentDir + name + extension;
-              String localizable = CrowdinTranslation.encodeAndroidLocale(locale);
-              String masterFilePath = resourceTranslationFilePath.replaceAll("res/values-" + localizable, "res/values");
-
+              masterFilePath = masterFilePath.replaceAll("res/values-" + CrowdinTranslation.encodeAndroidLocale(locale), "res/values");
+            }
               //create temporary file to persists zipinputstream
-              int n;
-              FileOutputStream fileoutputstream;
-              fileoutputstream = new FileOutputStream(resourceTranslationFilePath+".ziptempo");
-              while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
-                fileoutputstream.write(buf, 0, n);
-              }
-              fileoutputstream.close();
-              String crowdinFilePath = resourceTranslationFilePath + ".ziptempo";
-              FileInputStream input = new FileInputStream(crowdinFilePath);
-              XMLResourceBundleUtils.setLog(getLog());
-              XMLResourceBundleUtils.injectTranslation(input, resourceTranslationFilePath, masterFilePath);
-              
-              //delete ziptempo file
-              try{
-                File file = new File(crowdinFilePath);
-                if(file.delete()){
-                  if(getLog().isDebugEnabled())
-                    getLog().debug(file.getName() + " is deleted!");
-                }else{
-                  if(getLog().isDebugEnabled())
-                    getLog().debug("Delete operation is failed.");
-                }
-              }catch(Exception e){
-                getLog().error(e);
-              }
+            int n;
+            FileOutputStream fileoutputstream;
+            fileoutputstream = new FileOutputStream(entryName+".ziptempo");
+            while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
+              fileoutputstream.write(buf, 0, n);
             }
-            else{
-              // create the temporary properties file to be used for PropsToXML (use the file in Crowdin zip) 
-              //if not in mobile project, convert xml to properties
-              if (!zipentryName.contains("mobile")) {
-                entryName = entryName.replaceAll(".xml", ".properties");
+            fileoutputstream.close();
+            String crowdinFilePath = entryName + ".ziptempo";
+            FileInputStream input = new FileInputStream(crowdinFilePath);
+            XMLResourceBundleUtils.setLog(getLog());
+            XMLResourceBundleUtils.injectTranslation(input, entryName, masterFilePath);
+            
+            //delete ziptempo file
+            try{
+              File file = new File(crowdinFilePath);
+              if(file.delete()){
+                if(getLog().isDebugEnabled())
+                  getLog().debug(file.getName() + " is deleted!");
+              }else{
+                if(getLog().isDebugEnabled())
+                  getLog().debug("Delete operation is failed.");
               }
-              
-              int n;
-              FileOutputStream fileoutputstream;
-              fileoutputstream = new FileOutputStream(entryName);
-              while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
-                fileoutputstream.write(buf, 0, n);
-              }
-              fileoutputstream.close();
-  
-              File propertiesFile = new File(entryName);     
-              
-              // don't convert to ascii in mobile project
-              if (!zipentryName.contains("mobile")) {
-                PropsToXML.execShellCommand("native2ascii -encoding UTF8 " + propertiesFile.getPath()
-                    + " " + propertiesFile.getPath());
-              }
-  
-              PropsToXML.parse(propertiesFile.getPath(), resourceBundleType);
-              propertiesFile.delete();
+            }catch(Exception e){
+              getLog().error(e);
             }
+            
           }
           
           // when project is iOS
