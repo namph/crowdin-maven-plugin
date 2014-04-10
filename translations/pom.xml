@@ -65,6 +65,8 @@
                 <language>zh-CN</language>
                 <language>sq</language>		
                 <language>zh-TW</language>
+                <language>lt</language>
+                <language>cs</language>
               </languages>
               <!-- Projects to manage -->
               <sourcesRepositories>	      
